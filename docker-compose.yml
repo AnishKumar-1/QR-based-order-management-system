@@ -1,3 +1,5 @@
+version: "3.8"
+
 services:
 
   mysql:
@@ -10,12 +12,17 @@ services:
     networks:
       - backend
     profiles: ["active"]
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   table-service:
-    image: table-image
     build:
       context: ./table-service
       dockerfile: Dockerfile
+    image: table-image
     container_name: table-container
     ports:
       - "8080:8080"
@@ -26,10 +33,10 @@ services:
     profiles: ["active"]
 
   menu-service:
-    image: menu-image
     build:
       context: ./menu-service
       dockerfile: Dockerfile
+    image: menu-image
     container_name: menu-container
     ports:
       - "8081:8081"
