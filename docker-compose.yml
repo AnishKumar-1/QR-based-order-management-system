@@ -1,0 +1,43 @@
+services:
+
+  mysql:
+    image: mysql:8.0
+    container_name: mysql-container
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+    ports:
+      - "3306:3306"
+    networks:
+      - backend
+    profiles: ["active"]
+
+  table-service:
+    image: table-image
+    build:
+      context: ./table-service
+      dockerfile: Dockerfile
+    container_name: table-container
+    ports:
+      - "8080:8080"
+    depends_on:
+      - mysql
+    networks:
+      - backend
+    profiles: ["deactive"]
+
+  menu-service:
+    image: menu-image
+    build:
+      context: ./menu-service
+      dockerfile: Dockerfile
+    container_name: menu-container
+    ports:
+      - "8081:8081"
+    depends_on:
+      - mysql
+    networks:
+      - backend
+    profiles: ["active"]
+
+networks:
+  backend:
