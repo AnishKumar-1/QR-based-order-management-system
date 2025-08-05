@@ -23,7 +23,7 @@ services:
       - mysql
     networks:
       - backend
-    profiles: ["deactive"]
+    profiles: ["active"]
 
   menu-service:
     image: menu-image
@@ -37,7 +37,7 @@ services:
       - mysql
     networks:
       - backend
-    profiles: ["active"]
+    profiles: ["deactive"]
 
 networks:
   backend:
