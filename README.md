@@ -1,2 +1,23 @@
 # QR-based-order-management-system
-Backend system for QR code-based restaurant order management using Spring Boot microservices.
+
+A backend system for managing restaurant orders using QR codes. Built with Spring Boot microservices.
+
+## 📌 Features
+- Table QR code scanning
+- Menu management
+- Order placement by table
+- Admin APIs for order/table control
+
+## 🧰 Tech Stack
+- Java 17
+- Spring Boot
+- Spring Data JPA
+- MySQL
+- Docker (for containerization)
+- GitHub Actions (CI/CD)
+
+## 📦 How to Run
+1. Clone the repo
+   ```bash
+   git clone https://github.com/AnishKumar-1/QR-based-order-management-system.git
+
