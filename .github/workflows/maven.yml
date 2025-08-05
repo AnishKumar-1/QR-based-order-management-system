@@ -28,18 +28,12 @@ jobs:
         java-version: '17'
         distribution: 'temurin'
 
-    - name: Start MySQL and table-service with Docker Compose
-      run: docker compose --profile active up -d
-
-    - name: Wait for MySQL to be ready
-      run: |
-        echo "Waiting for MySQL to be ready..."
-        until docker exec mysql-container mysqladmin ping -h"localhost" --silent; do
-          sleep 2
-        done
-
     - name: Build table-service using Maven (skip tests)
       run: mvn clean package -DskipTests --file table-service/pom.xml
 
+    - name: Start MySQL and table-service with Docker Compose
+      run: docker compose --profile active up -d --build
+
     - name: Shutdown containers
+      if: always()
       run: docker compose down
