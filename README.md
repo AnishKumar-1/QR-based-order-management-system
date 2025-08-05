@@ -18,6 +18,7 @@ A backend system for managing restaurant orders using QR codes. Built with Sprin
 
 ## 📦 How to Run
 1. Clone the repo
+2. docker-compose up --build
    ```bash
    git clone https://github.com/AnishKumar-1/QR-based-order-management-system.git
 
