@@ -28,41 +28,18 @@ jobs:
         java-version: '17'
         distribution: 'temurin'
 
-    - name: Install Docker Compose
+    - name: Start MySQL and table-service with Docker Compose
+      run: docker-compose --profile active up -d
+
+    - name: Wait for MySQL to be ready
       run: |
-        sudo curl -L "https://github.com/docker/compose/releases/download/v2.24.5/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
-        sudo chmod +x /usr/local/bin/docker-compose
-        docker-compose version
+        echo "Waiting for MySQL to be ready..."
+        until docker exec mysql-container mysqladmin ping -h"localhost" --silent; do
+          sleep 2
+        done
 
     - name: Build table-service using Maven (skip tests)
       run: mvn clean package -DskipTests --file table-service/pom.xml
 
-    - name: Start MySQL and table-service with Docker Compose
-      run: docker-compose --profile active up -d --build
-
-    - name: Wait for MySQL to be ready
-      run: |
-        echo "Waiting for MySQL..."
-        for i in {1..15}; do
-          docker exec mysql-container mysqladmin ping -h localhost --silent && break
-          sleep 4
-        done
-
-    - name: Wait for table-service to be healthy
-      run: |
-        echo "Waiting for table-service..."
-        for i in {1..15}; do
-          STATUS=$(curl -s http://localhost:8080/actuator/health | grep '"status":"UP"' || true)
-          if [ ! -z "$STATUS" ]; then
-            echo "table-service is healthy"
-            exit 0
-          fi
-          sleep 4
-        done
-        echo "Service is not healthy!"
-        docker-compose logs
-        exit 1
-
     - name: Shutdown containers
-      if: always()
       run: docker-compose down
