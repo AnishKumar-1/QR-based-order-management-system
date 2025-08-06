@@ -28,11 +28,13 @@ jobs:
         java-version: '17'
         distribution: 'temurin'
 
-    - name: Build table-service using Maven (skip tests)
-      run: mvn clean package -DskipTests --file table-service/pom.xml
-
     - name: Start MySQL and table-service with Docker Compose
       run: docker compose --profile active up -d --build
+
+    - name: Build table-service using Maven (skip tests)
+      run: mvn clean package --file table-service/pom.xml
+
+
 
     - name: Shutdown containers
       if: always()
