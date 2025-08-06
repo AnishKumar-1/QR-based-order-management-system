@@ -1,12 +1,4 @@
-# This workflow will build a Java project with Maven, and cache/restore any dependencies to improve the workflow execution time
-# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-java-with-maven
-
-# This workflow uses actions that are not certified by GitHub.
-# They are provided by a third-party and are governed by
-# separate terms of service, privacy policy, and support
-# documentation.
-
-name: CI for table-service with MySQL
+name: CI with DB-dependent tests
 
 on:
   push:
@@ -15,27 +7,32 @@ on:
     branches: [ "main" ]
 
 jobs:
-  build-and-test:
+  build-test:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v3
+      - name: Checkout code
+        uses: actions/checkout@v3
 
-    - name: Set up Java 17
-      uses: actions/setup-java@v3
-      with:
-        java-version: '17'
-        distribution: 'temurin'
+      - name: Set up Java 17
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'temurin'
 
-    - name: Start MySQL and table-service with Docker Compose
-      run: docker compose --profile active up -d --build
+      - name: Start MySQL and table-service with Docker Compose
+        run: docker compose --profile active up -d --build
 
-    - name: Build table-service using Maven (skip tests)
-      run: mvn clean package --file table-service/pom.xml
+      - name: Wait for MySQL to be ready
+        run: |
+          echo "Waiting for MySQL to be ready..."
+          until docker exec mysql-container mysqladmin ping -h"localhost" --silent; do
+            sleep 2
+          done
 
+      - name: Run tests (integration + unit)
+        run: mvn clean test --file table-service/pom.xml
 
-
-    - name: Shutdown containers
-      if: always()
-      run: docker compose down
+      - name: Shutdown containers
+        if: always()
+        run: docker compose down
