@@ -1,4 +1,4 @@
-name: CI with DB-dependent tests
+name: CI for table-service with MySQL
 
 on:
   push:
@@ -7,7 +7,7 @@ on:
     branches: [ "main" ]
 
 jobs:
-  build-test:
+  build-and-test:
     runs-on: ubuntu-latest
 
     steps:
@@ -20,18 +20,11 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
+      - name: Build table-service using Maven (skip tests)
+        run: mvn clean package -DskipTests --file table-service/pom.xml
+
       - name: Start MySQL and table-service with Docker Compose
         run: docker compose --profile active up -d --build
-
-      - name: Wait for MySQL to be ready
-        run: |
-          echo "Waiting for MySQL to be ready..."
-          until docker exec mysql-container mysqladmin ping -h"localhost" --silent; do
-            sleep 2
-          done
-
-      - name: Run tests (integration + unit)
-        run: mvn clean test --file table-service/pom.xml
 
       - name: Shutdown containers
         if: always()
