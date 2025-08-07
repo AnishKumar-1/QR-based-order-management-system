@@ -27,7 +27,7 @@ jobs:
         run: mvn clean package -DskipTests --file menu-service/pom.xml
 
       - name: Start MySQL and table-service with Docker Compose
-        run: docker compose up --build
+        run: docker compose up --build -d
 
       - name: Shutdown containers
         if: always()
