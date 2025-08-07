@@ -3,7 +3,7 @@ server:
 
 spring:
   datasource:
-    url: jdbc:mysql://mysql-container:3306/tabler_db?serverTimezone=UTC
+    url: jdbc:mysql://mysql-container:3306/table_db
     username: root
     password: root
     driver-class-name: com.mysql.cj.jdbc.Driver

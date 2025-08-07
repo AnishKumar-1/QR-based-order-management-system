@@ -1,7 +1,4 @@
-version: "3.8"
-
 services:
-
   mysql:
     image: mysql:8.0
     container_name: mysql-container
@@ -9,14 +6,16 @@ services:
       MYSQL_ROOT_PASSWORD: root
     ports:
       - "3306:3306"
+    volumes:
+      - ./mysql/init.sql:/docker-entrypoint-initdb.d/init.sql
     networks:
       - backend
-    profiles: ["active"]
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-proot"]
       interval: 10s
       timeout: 5s
       retries: 5
+      start_period: 20s
 
   table-service:
     build:
@@ -27,10 +26,11 @@ services:
     ports:
       - "8080:8080"
     depends_on:
-      - mysql
+      mysql:
+        condition: service_healthy
     networks:
       - backend
-    profiles: ["active"]
+
 
   menu-service:
     build:
@@ -41,10 +41,10 @@ services:
     ports:
       - "8081:8081"
     depends_on:
-      - mysql
+      mysql:
+        condition: service_healthy
     networks:
       - backend
-    profiles: ["deactive"]
 
 networks:
   backend:
