@@ -26,6 +26,9 @@ jobs:
       - name: Build menu-service using Maven (skip tests)
         run: mvn clean package -DskipTests --file menu-service/pom.xml
 
+      - name: Build gateway-service using Maven (skip tests)
+        run: mvn clean package -DskipTests --file spring-cloud-gateway/pom.xml
+             
       - name: Start MySQL and table-service with Docker Compose
         run: docker compose up --build -d
 
