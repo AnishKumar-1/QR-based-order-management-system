@@ -17,6 +17,8 @@ services:
       retries: 5
       start_period: 20s
 
+
+
   table-service:
     build:
       context: ./table-service
@@ -31,6 +33,16 @@ services:
     networks:
       - backend
 
+  spring-cloud-gateway:
+    build:
+      context: ./spring-cloud-gateway
+      dockerfile: Dockerfile
+    image: gateway-image
+    container_name: gateway-container
+    ports:
+      - "8082:8082"
+    networks:
+      - backend
 
   menu-service:
     build:

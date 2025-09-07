@@ -35,19 +35,19 @@ public class TableService {
 
 
     //get table by table id
-    public ResponseEntity<TableResponse> tableById(Long tableId){
+    // Service should return DTO directly, not ResponseEntity
+    public TableResponse tableById(Long tableId){
         Tables table = tableRepo.findById(tableId)
                 .orElseThrow(() -> new IllegalArgumentException("table is not found with this id: " + tableId));
-        return ResponseEntity.status(HttpStatus.OK).body(modelMapper.map(table,TableResponse.class));
+        return modelMapper.map(table, TableResponse.class);
     }
 
+
     //get list of tables
-    public ResponseEntity<List<TableResponse>> tables(){
-        List<TableResponse> table = tableRepo.findAll().stream().map(singleTable->TableResponse.builder().id(singleTable.getId())
+    public List<TableResponse> tables(){
+        return tableRepo.findAll().stream().filter(Tables::getIsActive).map(singleTable->TableResponse.builder().id(singleTable.getId())
                         .tableNumber(singleTable.getTableNumber()).isActive(singleTable.getIsActive()).build())
                 .collect(Collectors.toList());
-
-        return ResponseEntity.status(HttpStatus.OK).body(table);
     }
 
     //patch table by its id

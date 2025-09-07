@@ -1,5 +1,6 @@
 package com.menu.service;
 
+import com.menu.dto.CategoryDto;
 import com.menu.dto.CategoryRequestDto;
 import com.menu.dto.CategoryResponseDto;
 import com.menu.dto.ItemsResponseDto;
@@ -13,6 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -30,36 +32,25 @@ public class CategoryService {
     //create category
     public ResponseEntity<CategoryResponseDto> createCategory(CategoryRequestDto category){
         if(categoryRepo.findByName(category.getName()).isPresent()){
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "Category already exists");
+            throw new IllegalArgumentException("Category already exists");
         }
-
         Category cat=modelMapper.map(category, Category.class);
         Category res=categoryRepo.save(cat);
 
 //storing only available items
-        List<ItemsResponseDto> items=res.getItems().stream().filter(Items::getAvailable)
-                .map(item->ItemsResponseDto.builder().id(item.getId())
-                        .name(item.getName())
-                        .price(item.getPrice())
-                        .description(item.getDescription())
-                        .available(item.getAvailable())
-                        .created_at(item.getCreated_at())
-                        .last_updated(item.getLast_updated())
-                        .build()
-                ).toList();
-
         CategoryResponseDto categoryResponseDto=CategoryResponseDto.builder()
                 .id(res.getId())
                 .name(res.getName())
-                .items(items)
+                .items(new ArrayList<>())
                 .created_at(res.getCreated_at())
-                .last_updated(res.getLast_updated()).build();
+                .last_updated(res.getLast_updated())
+                .build();
         return ResponseEntity.status(HttpStatus.CREATED).body(categoryResponseDto);
     }
 
     //get category by id
     public ResponseEntity<CategoryResponseDto> category(Long categoryId){
-       Category cat=categoryRepo.findById(categoryId).orElseThrow(()->new ResponseStatusException(HttpStatus.NOT_FOUND, "category not found with id:"+categoryId));
+       Category cat=categoryRepo.findById(categoryId).orElseThrow(()->new IllegalArgumentException("category not found with id:"+categoryId));
        List<ItemsResponseDto> items=cat.getItems().stream().filter(Items::getAvailable)
                .map(data->ItemsResponseDto.builder()
                        .id(data.getId())
@@ -123,4 +114,33 @@ public class CategoryService {
         return ResponseEntity.status(HttpStatus.OK).body("category updated successfully");
     }
 
+    //List of category
+    public ResponseEntity<List<CategoryDto>> categories(){
+        List<CategoryDto> result=categoryRepo.findAll().stream()
+                .map(category->CategoryDto.builder().id(category.getId())
+                        .name(category.getName()).build()).toList();
+        return ResponseEntity.status(HttpStatus.OK).body(result);
+    }
+
+    //list of categories and its items under it
+    public ResponseEntity<List<CategoryResponseDto>> categoriesItems(){
+        List<CategoryResponseDto> result=categoryRepo.findAll()
+                .stream().map(
+                        data->CategoryResponseDto.builder().id(data.getId())
+                                .name(data.getName())
+                                .created_at(data.getCreated_at())
+                                .last_updated(data.getLast_updated())
+                                .items(data.getItems().stream().map(item->
+                                        ItemsResponseDto.builder().id(item.getId())
+                                                .name(item.getName())
+                                                .price(item.getPrice()).description(item.getDescription())
+                                                .available(item.getAvailable())
+                                                .created_at(item.getCreated_at())
+                                                .last_updated(item.getLast_updated()).build()
+                                ).toList()
+                                ).build()
+                ).toList();
+
+        return ResponseEntity.status(HttpStatus.OK).body(result);
+    }
 }

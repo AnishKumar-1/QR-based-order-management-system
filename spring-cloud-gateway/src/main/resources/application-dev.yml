@@ -1,0 +1,19 @@
+server:
+  port: 8082
+
+spring:
+  cloud:
+    gateway:
+      routes:
+        # Table service route
+        - id: table-service
+          uri: http://table-container:8080
+          predicates:
+            - Path=/api/table/**
+
+        # Menu service category route
+        - id: menu-service
+          uri: http://menu-container:8081
+          predicates:
+            - Path=/api/category/**,/api/item/**
+

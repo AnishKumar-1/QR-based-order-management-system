@@ -21,9 +21,9 @@ public class TableController {
 
     @Autowired
     private TableService tableService;
-    private final Map<String,Object> res=new HashMap<>();
 
-    //add table
+
+    //create table
     @PostMapping
     public ResponseEntity<TableResponse> addTable(@Valid @RequestBody TableRequest tableNumber){
         return tableService.addTable(tableNumber);
@@ -31,6 +31,7 @@ public class TableController {
     //get table by its id
     @GetMapping("/{tableId}")
     public ResponseEntity<Map<String,Object>> tableByTableId(@PathVariable @NotNull(message = "required table id") Long tableId){
+         Map<String,Object> res=new HashMap<>();
         res.put("table",tableService.tableById(tableId));
         return ResponseEntity.ok(res);
     }
@@ -55,6 +56,7 @@ public class TableController {
     //get all table list
     @GetMapping
     public ResponseEntity<Map<String,Object>> tableList(){
+        Map<String,Object> res=new HashMap<>();
         res.put("tables",tableService.tables());
         return ResponseEntity.ok(res);
     }
